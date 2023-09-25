@@ -1,32 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:weatherapp/controls/getlocation.dart';
-import 'package:weatherapp/model/weather_model.dart';
-import 'package:weatherapp/services/weather_api_client.dart';
+import 'package:provider/provider.dart';
+import 'package:weatherapp/controller/hoemprovider.dart';
 import 'package:weatherapp/view/home/widgets/additionalinfo.dart';
 import 'package:weatherapp/view/home/widgets/current_weather.dart';
 
-class homepage extends StatefulWidget {
-  const homepage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<homepage> createState() => _homepageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => HomeProvider(),
+      child: _HomePage(),
+    );
+  }
 }
 
-class _homepageState extends State<homepage> {
-  WeatherApiclient client = WeatherApiclient();
+class _HomePage extends StatefulWidget {
+  @override
+  State<_HomePage> createState() => _HomePageState();
+}
 
-  Weather? data;
+class _HomePageState extends State<_HomePage> {
   TextEditingController searching = TextEditingController();
-
-  Future<void> getData(String place) async {
-    data = await client.currentweather(place);
-    setState(() {});
-  }
 
   @override
   void initState() {
     super.initState();
-    getData('Malappuram');
+    context.read<HomeProvider>().getData('Malappuram');
   }
 
   @override
@@ -71,7 +72,7 @@ class _homepageState extends State<homepage> {
               padding: const EdgeInsets.all(10),
               child: TextFormField(
                 onFieldSubmitted: (String place) {
-                  getData(place);
+                  context.read<HomeProvider>().getData(place);
                 },
                 controller: searching,
                 cursorColor: Colors.black,
@@ -109,10 +110,10 @@ class _homepageState extends State<homepage> {
             SizedBox(
               height: 20,
             ),
-            if (data != null)
+            if (context.watch<HomeProvider>().data != null)
               currentweather(
                 Icons.wb_sunny_rounded,
-                '${data!.temp}',
+                '${context.watch<HomeProvider>().data!.temp}',
                 searching.text.isEmpty ? 'Malappuram' : searching.text,
               ),
             SizedBox(
@@ -130,12 +131,12 @@ class _homepageState extends State<homepage> {
             SizedBox(
               height: 10.0,
             ),
-            if (data != null)
+            if (context.watch<HomeProvider>().data != null)
               additionalinfos(
-                '${data!.wind}',
-                '${data!.humidity}',
-                '${data!.pressure}',
-                '${data!.feels_like}',
+                '${context.watch<HomeProvider>().data!.wind}',
+                '${context.watch<HomeProvider>().data!.humidity}',
+                '${context.watch<HomeProvider>().data!.pressure}',
+                '${context.watch<HomeProvider>().data!.feels_like}',
               ),
           ],
         ),
